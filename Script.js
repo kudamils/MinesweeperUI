@@ -1,4 +1,5 @@
 var boardElm = document.querySelector(".board")
+var boardCheatElm = document.querySelector(".boardCheat")
 var textCoord = document.querySelector(".inputCoord")
 var submitCoord = document.querySelector(".submitCoord")
 var boardInputElm = document.querySelector(".boardInput")
@@ -23,6 +24,7 @@ const NEIGHBOR = [
 submitBoardElm.addEventListener('click', init)
 
 function init() {
+  console.log ("apapun")
   var boardRaw = boardInputElm.value.split(",")
   if (isValidBoard(Number(boardRaw[0]), Number(boardRaw[1]))) {
     initBoard(Number(boardRaw[0]), Number(boardRaw[1]))
@@ -38,7 +40,6 @@ function init() {
     return
   }
 
-  printBoard(true)
   printBoard()
 }
 
@@ -53,6 +54,7 @@ function initBoard(length, width) {
         isBomb: false,
         isOpen: false,
         showBoard: "-",
+        showCheat: "-"
       })
     }
   }
@@ -74,6 +76,7 @@ function initBomb(bombs) {
   while (bombs > 0) {
     if (board[row][col].isBomb === false) {
       board[row][col].isBomb = true
+      board[row][col].showCheat = "*"
       bombs--
     } else {
       col = Math.floor(Math.random() * board[0].length)
@@ -102,8 +105,6 @@ function isValidBomb(bombs) {
   return true
 }
 
-
-
 function checkTile(row, col) {
   if (row < 0 || row >= board.length || col < 0 || col >= board[0].length) {
     return
@@ -131,11 +132,13 @@ function checkTile(row, col) {
   if (count !== 0) {
     board[row][col].showBoard = count
     board[row][col].isOpen = true
+    board[row][col].showCheat = count
     openCount++
     return
   } else {
     board[row][col].isOpen = true
     board[row][col].showBoard = count
+    board[row][col].showCheat = count
     openCount++
     NEIGHBOR.forEach(elm => {
       checkTile(row + elm.row, col + elm.col)
@@ -152,4 +155,20 @@ function gameOver(win = false) {
 
   submitCoord.disabled = true
 }
+
+function printBoard(cheat = false) {
+  let stringToPrint = " ".padEnd(3, " ")
+  for (let col = 0; col < board[0].length; col++) {
+    stringToPrint += `${col + 1}`.padEnd(3, " ")
+  }
+  stringToPrint += "\n"
+  for (let i = 0; i < board.length; i++) {
+    stringToPrint += `${i+ 1}`.padEnd(3, " ")
+    for (let j = 0; j < board[0].length; j++) {
+      stringToPrint += cheat === false ? `${board[i][j].showBoard}`.padEnd(3, " ") : `${board[i][j].showCheat}`.padEnd(3, " ")
+    }
+    stringToPrint += "\n"
+  }
+
+   return cheat === false ? boardElm.textContent = stringToPrint : boardCheatElm.textContent = stringToPrint
 }
